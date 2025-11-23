@@ -1,0 +1,26 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DD_ENV: "dev"
+  DD_SERVICE: "gitlab-pipeline"
+  DD_VERSION: "1.0.0"
+
+build-job:
+  stage: build
+  script:
+    - echo "Build iniciado"
+    - echo "Compilando projeto..."
+
+test-job:
+  stage: test
+  script:
+    - echo "Rodando testes..."
+    - echo "OK"
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploy realizado!"
