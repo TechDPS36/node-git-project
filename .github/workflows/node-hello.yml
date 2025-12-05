@@ -53,7 +53,7 @@ jobs:
             --env "dev" \
             --started-at $DEPLOY_START \
             --finished-at $(date +%s) \
-            --version "1.0.0" \
+            --version "1.0.1" \
             --git-repository-url "${{ github.server_url }}/${{ github.repository }}" \
             --git-commit-sha "${{ github.sha }}" \
             --custom-tags "workflow:node-hello,language:node"
