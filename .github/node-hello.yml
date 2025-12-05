@@ -1,0 +1,62 @@
+name: Node Hello World CI/CD + DORA + Datadog
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Rodar servidor Node.js (teste básico)
+        run: |
+          echo "Iniciando aplicação para teste..."
+          node server.js &
+          sleep 3
+
+      #############################################
+      # 📌 DORA — registrar início do deploy
+      #############################################
+      - name: Registrar início do deploy
+        run: echo "DEPLOY_START=$(date +%s)" >> $GITHUB_ENV
+
+      #############################################
+      # 📌 Instalar Datadog CLI
+      #############################################
+      - name: Instalar Datadog CLI
+        run: npm install -g @datadog/datadog-ci
+
+      #############################################
+      # 📌 Enviar DORA Metrics para o Datadog
+      #############################################
+      - name: Enviar DORA Metrics
+        env:
+          DD_API_KEY: ${{ secrets.DATADOG_API_KEY }}
+          DD_SITE: "datadoghq.com"
+        run: |
+          datadog-ci dora deployment \
+            --service "node-hello-world" \
+            --env "dev" \
+            --started-at $DEPLOY_START \
+            --finished-at $(date +%s) \
+            --version "1.0.0" \
+            --git-repository-url "${{ github.server_url }}/${{ github.repository }}" \
+            --git-commit-sha "${{ github.sha }}" \
+            --custom-tags "workflow:node-hello,language:node"
+
+      - name: Finalização
+        run: echo "Pipeline concluído com monitoramento Datadog + DORA Metrics! 🚀"
